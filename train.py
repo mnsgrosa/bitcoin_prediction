@@ -7,6 +7,7 @@ import torch.nn.functional as F
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
+from sklearn.metrics import mean_squared_error
 
 class LSTMAtt(nn.Module):
     def __init__(self, input_dimension, hidden_unit_dimension, output_dimension = 1, number_of_layers = 1):
@@ -27,6 +28,7 @@ class LSTMAtt(nn.Module):
 class Stock:
     def __init__(self, ticket:str, device:str):
         self.device = device
+        self.scaler = MinMaxScaler()
         self.ticket = yf.Ticker(ticket)
         self.data = None
         self.X = None
@@ -99,7 +101,15 @@ if __name__ == '__main__':
     optimizer = torch.optim.Adam(modelo.parameters(), lr=0.01)
 
     train_loss, test_loss = workflow(modelo, bitcoin.X_train_tensor, bitcoin.X_test_tensor, bitcoin.y_train_tensor, bitcoin.y_test_tensor, optimizer, criterion)
-    
+    y_hat = modelo(bitcoin.X_test_tensor).detach().numpy()
+    y_hat_actual = bitcoin.scaler.inverse_transform(y_hat)
+
+    mse = mean_squared_error(scaler.inverse_transform(self.bitcoin.y_test), y_hat_actual)
+
+    df = pd.DataFrame([train_loss[-1], test_loss[-1], mse, mse ** 0.5], index = ['train loss', 'test loss', 'mse', 'rmse'])
+
     plt.plot(range(len(train_loss)), train_loss)
     plt.plot(range(len(test_loss)), test_loss)
     plt.savefig('teste.png')
+
+    df.to_csv('results.csv', header = False, index = False)

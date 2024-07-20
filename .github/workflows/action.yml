@@ -1,4 +1,4 @@
-name: your-workflow-name
+name: testing-torch-model
 on: [push]
 jobs:
   run:
@@ -26,4 +26,4 @@ jobs:
         run: |
           # Post reports as comments in GitHub PRs
           cat results.txt >> report.md
-          cml comment create report.md
+          cml-publish ./teste.png --md >> report.md
